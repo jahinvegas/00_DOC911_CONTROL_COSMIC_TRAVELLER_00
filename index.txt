@@ -1,0 +1,2172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       DOC911 - INTERDIMENSIONAL CONTROL SYSTEM
+       ============================================================
+       A cinematic, single-page web experience featuring:
+         1) Dimensional Intro Portal  – full-screen animated portal
+         2) Command Interface         – interactive dashboard & transporter
+         3) About the Traveller       – origin story & timeline
+       
+       Everything is self-contained: CSS in <style>, JS in <script>.
+       Heavily commented for beginners. Enjoy the ride! 
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOC911 — Interdimensional Control System</title>
+
+  <!-- ============================================================
+       FONTS – We load two Google Fonts:
+         • Orbitron  – futuristic heading font
+         • Share Tech Mono – monospace terminal font
+       ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==============================================================
+       CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+       ==============================================================
+       We define our entire color palette & reusable values here.
+       Changing a variable here updates the whole site instantly.
+       ============================================================== */
+    :root {
+      /* --- Core palette --- */
+      --void-black:    #0a0a0f;       /* deepest background             */
+      --void-dark:     #12121a;       /* slightly lighter panels         */
+      --electric-cyan:  #00f0ff;      /* primary accent / tech glow      */
+      --neon-magenta:   #ff00ff;      /* secondary accent / alerts       */
+      --transport-gold: #ffd700;      /* transporter & highlights        */
+      --holo-blue:      #4488ff;      /* softer blue for body text       */
+      --dim-text:       #7788aa;      /* muted / secondary text          */
+      --panel-bg:       rgba(10,10,20,0.6); /* glass-morphic panel fill  */
+      --glass-border:   rgba(0,240,255,0.15); /* subtle glowing border   */
+
+      /* --- Typography --- */
+      --font-heading: 'Orbitron', sans-serif;
+      --font-mono:    'Share Tech Mono', monospace;
+
+      /* --- Spacing --- */
+      --nav-height: 60px;
+
+      /* --- Animation curves (Framer-Motion-style easings) --- */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    /* ==============================================================
+       REDUCED-MOTION PREFERENCE
+       ==============================================================
+       If the user has enabled "reduce motion" in their OS settings,
+       we disable ALL animations and transitions for accessibility.
+       ============================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* ==============================================================
+       GLOBAL RESET & BASE STYLES
+       ============================================================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;              /* padding included in width  */
+    }
+
+    html {
+      scroll-behavior: smooth;             /* native smooth scrolling    */
+      font-size: 16px;                     /* 1rem = 16px baseline       */
+    }
+
+    body {
+      font-family: var(--font-mono);
+      background: var(--void-black);
+      color: #c8d8e8;
+      overflow-x: hidden;                  /* prevent horizontal scroll  */
+      line-height: 1.6;
+    }
+
+    /* Utility: screen-reader-only text (visually hidden but accessible) */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+
+    /* ==============================================================
+       KEYFRAME ANIMATIONS
+       ==============================================================
+       Defined once here, reused throughout the page.
+       ============================================================== */
+
+    /* --- Fade in from below --- */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Fade in from above --- */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Simple fade in --- */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* --- Scale up from nothing --- */
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.7); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* --- Continuous gentle pulse (for glows) --- */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.5; }
+    }
+
+    /* --- Glow pulse on text-shadow --- */
+    @keyframes glowPulse {
+      0%, 100% { text-shadow: 0 0 10px var(--electric-cyan), 0 0 30px var(--electric-cyan); }
+      50%      { text-shadow: 0 0 20px var(--electric-cyan), 0 0 60px var(--electric-cyan), 0 0 100px var(--electric-cyan); }
+    }
+
+    /* --- Rotating radar sweep line --- */
+    @keyframes radarSweep {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* --- Gradient shift background --- */
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* --- Floating upward (particles) --- */
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1);   opacity: 0.6; }
+      50%  { opacity: 1; }
+      100% { transform: translateY(-120vh) scale(0); opacity: 0; }
+    }
+
+    /* --- Horizontal scanner line --- */
+    @keyframes scanLine {
+      0%   { top: 0%; }
+      100% { top: 100%; }
+    }
+
+    /* --- Ring expand (transporter) --- */
+    @keyframes ringExpand {
+      0%   { transform: scale(0.2); opacity: 1; }
+      100% { transform: scale(3);   opacity: 0; }
+    }
+
+    /* --- Blink cursor --- */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0; }
+    }
+
+    /* --- Status bar fill --- */
+    @keyframes fillBar {
+      from { width: 0%; }
+    }
+
+    /* --- Shimmer across text --- */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+
+    /* ==============================================================
+       NAVIGATION – Fixed Floating Bar (glass-morphism)
+       ==============================================================
+       The nav sticks to the top of the viewport.  It uses
+       backdrop-filter: blur() for the frosted-glass look.
+       ============================================================== */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      background: rgba(10, 10, 20, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      z-index: 1000;                       /* always on top              */
+      transition: background 0.3s ease;
+    }
+
+    /* Logo in nav */
+    .nav-logo {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--electric-cyan);
+      text-shadow: 0 0 15px var(--electric-cyan);
+      letter-spacing: 3px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* Desktop nav links container */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+
+    /* Individual nav link */
+    .nav-links a {
+      font-family: var(--font-heading);
+      font-size: 0.7rem;
+      color: var(--dim-text);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      transition: all 0.3s var(--ease-out-expo);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: var(--electric-cyan);
+      border-color: var(--glass-border);
+      background: rgba(0,240,255,0.05);
+      text-shadow: 0 0 10px var(--electric-cyan);
+      outline: none;
+    }
+    /* Active state – set via JS when section is in view */
+    .nav-links a.active {
+      color: var(--electric-cyan);
+      border-color: rgba(0,240,255,0.3);
+      background: rgba(0,240,255,0.08);
+    }
+
+    /* Special "Transport" button in nav */
+    .nav-transport-btn {
+      font-family: var(--font-heading) !important;
+      font-size: 0.7rem !important;
+      color: var(--transport-gold) !important;
+      border: 1px solid rgba(255,215,0,0.4) !important;
+      background: rgba(255,215,0,0.08) !important;
+      cursor: pointer;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .nav-transport-btn:hover {
+      color: #fff !important;
+      background: rgba(255,215,0,0.2) !important;
+      box-shadow: 0 0 20px rgba(255,215,0,0.3);
+      text-shadow: 0 0 10px var(--transport-gold) !important;
+    }
+
+    /* --- Hamburger button (mobile only) --- */
+    .hamburger {
+      display: none;                       /* hidden on desktop          */
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      z-index: 1100;
+    }
+    .hamburger span {
+      display: block;
+      width: 25px; height: 2px;
+      background: var(--electric-cyan);
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+    /* Animate hamburger to "X" when menu is open */
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* ==============================================================
+       SECTION 1 – DIMENSIONAL INTRO PORTAL
+       ==============================================================
+       Full-viewport cinematic intro.
+         • Canvas draws the animated portal / particle ring.
+         • Overlay contains the logo, boot text, scroll cue.
+       ============================================================== */
+    #portal {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--void-black);
+    }
+
+    /* The <canvas> sits behind the overlay text */
+    #portalCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    /* Overlay with logo + boot sequence text */
+    .portal-overlay {
+      position: absolute;
+      inset: 0;                            /* shorthand top/right/bottom/left: 0 */
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;                /* let clicks pass to canvas  */
+    }
+
+    /* Big DOC911 title */
+    .portal-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2.5rem, 8vw, 6rem);  /* responsive font sizing  */
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: #fff;
+      text-shadow:
+        0 0 20px var(--electric-cyan),
+        0 0 60px var(--electric-cyan),
+        0 0 120px rgba(0,240,255,0.3);
+      animation: scaleIn 1.5s var(--ease-out-expo) forwards,
+                 glowPulse 3s ease-in-out infinite 1.5s;
+      opacity: 0;
+      /* GPU acceleration hint */
+      will-change: transform, opacity;
+    }
+
+    /* Subtitle */
+    .portal-subtitle {
+      font-family: var(--font-heading);
+      font-size: clamp(0.6rem, 2vw, 1rem);
+      letter-spacing: 8px;
+      color: var(--electric-cyan);
+      margin-top: 10px;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1s;
+    }
+
+    /* Boot sequence terminal text container */
+    .boot-sequence {
+      margin-top: 40px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--electric-cyan);
+      text-align: left;
+      max-width: 500px;
+      min-height: 120px;
+    }
+    .boot-line {
+      opacity: 0;
+      animation: fadeIn 0.4s ease forwards;
+      margin-bottom: 4px;
+    }
+    .boot-line .cursor {
+      animation: blink 0.8s step-end infinite;
+    }
+
+    /* Scroll-down indicator arrow */
+    .scroll-cue {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 4.5s;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .scroll-cue svg {
+      width: 30px; height: 30px;
+      fill: none;
+      stroke: var(--electric-cyan);
+      stroke-width: 2;
+      animation: floatBounce 2s ease-in-out infinite;
+    }
+    @keyframes floatBounce {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(10px); }
+    }
+
+    /* ==============================================================
+       SECTION 2 – COMMAND COMMUNICATION INTERFACE
+       ==============================================================
+       A grid-based dashboard of glass-morphic panels.
+       ============================================================== */
+    #command {
+      position: relative;
+      min-height: 100vh;
+      padding: calc(var(--nav-height) + 40px) 30px 60px;
+      background: linear-gradient(180deg, var(--void-black) 0%, #08081a 50%, var(--void-black) 100%);
+    }
+
+    /* Section title used in Command & About */
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      font-weight: 900;
+      text-align: center;
+      color: #fff;
+      letter-spacing: 6px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px var(--electric-cyan);
+    }
+    .section-subtitle {
+      text-align: center;
+      color: var(--dim-text);
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      margin-bottom: 40px;
+    }
+
+    /* --- Dashboard grid --- */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    /* --- Glass-morphic panel (base) --- */
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.4s var(--ease-out-expo),
+                  box-shadow 0.4s ease,
+                  border-color 0.4s ease;
+      /* Scroll-triggered entrance – starts hidden */
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Once the Intersection Observer fires, this class is added */
+    .panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.8s var(--ease-out-expo),
+                  transform 0.8s var(--ease-out-expo);
+    }
+    .panel:hover {
+      border-color: rgba(0,240,255,0.35);
+      box-shadow: 0 0 30px rgba(0,240,255,0.08), inset 0 0 30px rgba(0,240,255,0.03);
+      transform: translateY(-4px);
+    }
+
+    /* Scan-line overlay on panels */
+    .panel::after {
+      content: '';
+      position: absolute;
+      left: 0; width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--electric-cyan), transparent);
+      opacity: 0.07;
+      animation: scanLine 4s linear infinite;
+      pointer-events: none;
+    }
+
+    /* Panel header bar */
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0,240,255,0.1);
+    }
+    .panel-header .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--electric-cyan);
+      box-shadow: 0 0 6px var(--electric-cyan);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .panel-header .dot.warn { background: var(--transport-gold); box-shadow: 0 0 6px var(--transport-gold); }
+    .panel-header .dot.alert { background: var(--neon-magenta); box-shadow: 0 0 6px var(--neon-magenta); }
+    .panel-header h3 {
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      color: var(--electric-cyan);
+      text-transform: uppercase;
+    }
+
+    /* --- Communications Log Panel --- */
+    .comms-log {
+      grid-column: span 1;
+      grid-row: span 2;          /* tall panel – spans 2 rows           */
+    }
+    .comms-feed {
+      height: 280px;
+      overflow-y: auto;
+      font-size: 0.72rem;
+      color: var(--dim-text);
+      scrollbar-width: thin;
+      scrollbar-color: var(--electric-cyan) transparent;
+    }
+    .comms-feed::-webkit-scrollbar { width: 4px; }
+    .comms-feed::-webkit-scrollbar-thumb { background: var(--electric-cyan); border-radius: 4px; }
+    .comms-msg {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      animation: fadeIn 0.5s ease;
+    }
+    .comms-msg .timestamp {
+      color: var(--electric-cyan);
+      font-size: 0.6rem;
+    }
+    .comms-msg.alert-msg { color: var(--neon-magenta); }
+    .comms-msg.gold-msg  { color: var(--transport-gold); }
+
+    /* --- Radar Panel --- */
+    .radar-panel { grid-column: span 1; min-height: 280px; }
+    .radar-container {
+      position: relative;
+      width: 200px; height: 200px;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 1px solid rgba(0,240,255,0.2);
+      background: radial-gradient(circle, rgba(0,240,255,0.03) 0%, transparent 70%);
+      overflow: hidden;
+    }
+    /* Concentric rings */
+    .radar-container::before,
+    .radar-container::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0,240,255,0.1);
+    }
+    .radar-container::before {
+      width: 66%; height: 66%;
+      top: 17%; left: 17%;
+    }
+    .radar-container::after {
+      width: 33%; height: 33%;
+      top: 33.5%; left: 33.5%;
+    }
+    /* Cross-hair lines */
+    .radar-crosshair-h, .radar-crosshair-v {
+      position: absolute;
+      background: rgba(0,240,255,0.1);
+    }
+    .radar-crosshair-h { width: 100%; height: 1px; top: 50%; }
+    .radar-crosshair-v { height: 100%; width: 1px; left: 50%; }
+    /* Rotating sweep */
+    .radar-sweep {
+      position: absolute;
+      top: 0; left: 50%;
+      width: 50%; height: 50%;
+      transform-origin: bottom left;
+      animation: radarSweep 3s linear infinite;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(0,240,255,0.25) 40deg,
+        transparent 80deg
+      );
+      border-radius: 0 100% 0 0;
+    }
+    /* Blip (detected object on radar) */
+    .radar-blip {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--electric-cyan);
+      box-shadow: 0 0 8px var(--electric-cyan);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* --- System Diagnostics Panel --- */
+    .diag-panel { grid-column: span 1; }
+    .gauge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.7rem;
+    }
+    .gauge-label { color: var(--dim-text); width: 110px; letter-spacing: 1px; }
+    .gauge-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      margin: 0 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--electric-cyan), var(--neon-magenta));
+      animation: fillBar 1.5s var(--ease-out-expo) forwards;
+      will-change: width;
+    }
+    .gauge-fill.gold {
+      background: linear-gradient(90deg, var(--transport-gold), #ffaa00);
+    }
+    .gauge-val { color: var(--electric-cyan); font-size: 0.7rem; width: 42px; text-align: right; }
+
+    /* --- Coordinates Panel --- */
+    .coords-panel { grid-column: span 1; }
+    .coord-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .coord-item {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,240,255,0.08);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .coord-label {
+      font-size: 0.55rem;
+      color: var(--dim-text);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .coord-value {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      color: var(--electric-cyan);
+      text-shadow: 0 0 10px rgba(0,240,255,0.4);
+    }
+
+    /* --- Transporter Panel --- */
+    .transporter-panel {
+      grid-column: span 3;       /* full width of grid                  */
+      background: linear-gradient(135deg, rgba(255,215,0,0.04), rgba(10,10,20,0.8));
+      border-color: rgba(255,215,0,0.2);
+      text-align: center;
+      padding: 30px;
+    }
+    .transporter-panel:hover {
+      border-color: rgba(255,215,0,0.4);
+      box-shadow: 0 0 40px rgba(255,215,0,0.08);
+    }
+    .transporter-title {
+      font-family: var(--font-heading);
+      font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+      color: var(--transport-gold);
+      letter-spacing: 6px;
+      text-shadow: 0 0 20px rgba(255,215,0,0.4);
+      margin-bottom: 8px;
+    }
+    .transporter-desc {
+      color: var(--dim-text);
+      font-size: 0.75rem;
+      margin-bottom: 20px;
+    }
+
+    /* Big activation button */
+    .transport-activate-btn {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      padding: 14px 50px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+      color: var(--transport-gold);
+      border: 2px solid rgba(255,215,0,0.4);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.4s var(--ease-out-expo);
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+    .transport-activate-btn:hover,
+    .transport-activate-btn:focus-visible {
+      background: rgba(255,215,0,0.2);
+      box-shadow: 0 0 40px rgba(255,215,0,0.3), inset 0 0 30px rgba(255,215,0,0.05);
+      transform: scale(1.05);
+      outline: none;
+    }
+    .transport-activate-btn:active { transform: scale(0.98); }
+
+    /* Phase indicator row below button */
+    .phase-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 20px;
+    }
+    .phase-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .phase-dot .circle {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,215,0,0.3);
+      background: transparent;
+      transition: all 0.4s ease;
+    }
+    .phase-dot .circle.active {
+      background: var(--transport-gold);
+      box-shadow: 0 0 12px var(--transport-gold);
+      border-color: var(--transport-gold);
+    }
+    .phase-dot .circle.done {
+      background: var(--electric-cyan);
+      box-shadow: 0 0 8px var(--electric-cyan);
+      border-color: var(--electric-cyan);
+    }
+    .phase-dot span {
+      font-size: 0.5rem;
+      letter-spacing: 1px;
+      color: var(--dim-text);
+      text-transform: uppercase;
+    }
+
+    /* ==============================================================
+       TRANSPORTER OVERLAY – Full-screen effect
+       ==============================================================
+       This covers the entire viewport when activated.
+       Hidden by default (opacity 0, pointer-events none).
+       ============================================================== */
+    .transporter-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,1);       /* fully opaque so page behind is hidden */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    .transporter-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .transport-phase-text {
+      font-family: var(--font-heading);
+      font-size: clamp(1.5rem, 5vw, 3rem);
+      color: var(--transport-gold);
+      letter-spacing: 10px;
+      text-shadow: 0 0 30px var(--transport-gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .transport-sub-text {
+      font-size: 0.8rem;
+      color: var(--dim-text);
+      letter-spacing: 4px;
+    }
+    /* Canvas for transporter particle effects */
+    #transportCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+    }
+    /* Close / reset button */
+    .transport-close {
+      position: absolute;
+      top: 20px; right: 30px;
+      font-family: var(--font-heading);
+      font-size: 0.7rem;
+      color: var(--dim-text);
+      background: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    .transport-close:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+
+    /* Energy rings (CSS circles that expand) */
+    .energy-ring {
+      position: absolute;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      border: 2px solid var(--transport-gold);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ==============================================================
+       SECTION 3 – ABOUT THE TRAVELLER
+       ============================================================== */
+    #about {
+      position: relative;
+      min-height: 100vh;
+      padding: calc(var(--nav-height) + 60px) 30px 80px;
+      background: linear-gradient(180deg, var(--void-black) 0%, #0a0a18 50%, var(--void-black) 100%);
+      overflow: hidden;
+    }
+
+    /* Decorative floating circle in background */
+    .about-beacon {
+      position: absolute;
+      top: 20%; right: 10%;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,240,255,0.06) 0%, transparent 70%);
+      border: 1px solid rgba(0,240,255,0.06);
+      animation: pulse 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* Origin story block */
+    .story-block {
+      max-width: 800px;
+      margin: 0 auto 60px;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+    }
+    .story-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .story-block h3 {
+      font-family: var(--font-heading);
+      font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+      color: var(--electric-cyan);
+      letter-spacing: 4px;
+      margin-bottom: 15px;
+      text-shadow: 0 0 10px rgba(0,240,255,0.3);
+    }
+    .story-block p {
+      color: #8899bb;
+      line-height: 1.9;
+      font-size: 0.85rem;
+    }
+    .story-block .highlight {
+      color: var(--electric-cyan);
+      text-shadow: 0 0 8px rgba(0,240,255,0.3);
+    }
+    .story-block .gold { color: var(--transport-gold); }
+
+    /* --- Timeline --- */
+    .timeline {
+      max-width: 800px;
+      margin: 60px auto 0;
+      position: relative;
+      padding-left: 40px;
+    }
+    /* Vertical line */
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--electric-cyan), var(--neon-magenta), var(--transport-gold));
+      opacity: 0.3;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 50px;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+    }
+    .timeline-item.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    /* Dot on the timeline line */
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -33px; top: 6px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--electric-cyan);
+      box-shadow: 0 0 10px var(--electric-cyan);
+      border: 2px solid var(--void-black);
+    }
+    .timeline-item:nth-child(2)::before { background: var(--neon-magenta); box-shadow: 0 0 10px var(--neon-magenta); }
+    .timeline-item:nth-child(3)::before { background: var(--transport-gold); box-shadow: 0 0 10px var(--transport-gold); }
+    .timeline-item:nth-child(4)::before { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+    .timeline-era {
+      font-family: var(--font-heading);
+      font-size: 0.6rem;
+      color: var(--dim-text);
+      letter-spacing: 3px;
+      margin-bottom: 6px;
+    }
+    .timeline-title {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      color: #fff;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .timeline-desc {
+      font-size: 0.8rem;
+      color: #7788aa;
+      line-height: 1.7;
+    }
+
+    /* --- Signal Beacon (decorative bottom element) --- */
+    .signal-beacon {
+      text-align: center;
+      margin-top: 80px;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .signal-beacon.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .beacon-rings {
+      position: relative;
+      width: 120px; height: 120px;
+      margin: 0 auto 20px;
+    }
+    .beacon-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(0,240,255,0.2);
+      animation: ringExpand 3s ease-out infinite;
+    }
+    .beacon-ring:nth-child(2) { animation-delay: 1s; }
+    .beacon-ring:nth-child(3) { animation-delay: 2s; }
+    .beacon-core {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--electric-cyan);
+      box-shadow: 0 0 20px var(--electric-cyan), 0 0 60px rgba(0,240,255,0.3);
+    }
+    .beacon-text {
+      font-family: var(--font-heading);
+      font-size: 0.6rem;
+      letter-spacing: 6px;
+      color: var(--dim-text);
+    }
+
+    /* ==============================================================
+       FLOATING PARTICLES (CSS-only, scattered in background)
+       ==============================================================
+       Small dots positioned absolutely, floating upward.
+       ============================================================== */
+    .bg-particles {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: var(--electric-cyan);
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+
+    /* ==============================================================
+       RESPONSIVE BREAKPOINTS
+       ============================================================== */
+
+    /* --- Tablet (< 1024px) --- */
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .transporter-panel {
+        grid-column: span 2;
+      }
+      .comms-log {
+        grid-row: span 1;
+      }
+      .comms-feed { height: 180px; }
+    }
+
+    /* --- Mobile (< 768px) --- */
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+
+      .nav-links {
+        position: fixed;
+        top: 0; right: -100%;
+        width: 260px;
+        height: 100vh;
+        flex-direction: column;
+        background: rgba(10,10,20,0.97);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        padding: 80px 30px 30px;
+        gap: 5px;
+        transition: right 0.4s var(--ease-out-expo);
+        border-left: 1px solid var(--glass-border);
+        z-index: 1050;
+      }
+      .nav-links.open { right: 0; }
+      .nav-links a {
+        font-size: 0.8rem;
+        padding: 12px 16px;
+        width: 100%;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .transporter-panel,
+      .comms-log {
+        grid-column: span 1;
+      }
+      .radar-container { width: 160px; height: 160px; }
+
+      .timeline { padding-left: 30px; }
+
+      #command, #about { padding-left: 16px; padding-right: 16px; }
+
+      .phase-indicators { gap: 10px; flex-wrap: wrap; }
+
+      .portal-title { letter-spacing: 6px; }
+
+      .about-beacon { display: none; }
+    }
+
+    /* --- Small mobile (< 480px) --- */
+    @media (max-width: 480px) {
+      .coord-grid { grid-template-columns: 1fr; }
+      .transport-activate-btn { padding: 12px 30px; font-size: 0.7rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============================================================
+       FIXED BACKGROUND PARTICLES (CSS-animated dots)
+       ============================================================
+       These tiny dots float upward continuously.
+       We create them in JS for convenience (random positions).
+       ============================================================ -->
+  <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       NAVIGATION BAR
+       ============================================================
+       Fixed glass-morphic bar at the top.
+       The hamburger button shows only on mobile (< 768px).
+       ============================================================ -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="#portal" class="nav-logo" aria-label="DOC911 Home">DOC911</a>
+
+    <!-- Hamburger button for mobile -->
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="nav-links" id="navLinks" role="menubar">
+      <li role="none"><a href="#portal"  role="menuitem" class="active">Home</a></li>
+      <li role="none"><a href="#command" role="menuitem">Command</a></li>
+      <li role="none"><a href="#about"   role="menuitem">About</a></li>
+      <li role="none">
+        <a href="#" role="menuitem" class="nav-transport-btn" id="navTransportBtn" aria-label="Activate Transporter">
+          ⚡ Transport
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ============================================================
+       SECTION 1: DIMENSIONAL INTRO PORTAL
+       ============================================================
+       Full-screen cinematic intro with canvas portal animation,
+       holographic logo, and boot-sequence terminal text.
+       ============================================================ -->
+  <section id="portal" aria-label="Dimensional Intro Portal">
+    <!-- Canvas for the animated portal / particle ring -->
+    <canvas id="portalCanvas" aria-hidden="true"></canvas>
+
+    <!-- Text overlay on top of the canvas -->
+    <div class="portal-overlay">
+      <h1 class="portal-title">DOC911</h1>
+      <p class="portal-subtitle">INTERDIMENSIONAL CONTROL SYSTEM</p>
+
+      <!-- Boot sequence – lines are added by JavaScript -->
+      <div class="boot-sequence" id="bootSequence" aria-live="polite" aria-label="System boot sequence"></div>
+    </div>
+
+    <!-- Scroll-down arrow cue -->
+    <a href="#command" class="scroll-cue" aria-label="Scroll to Command Interface">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </a>
+
+    <!-- 🔊 AUDIO TRIGGER POINT: Ambient hum + boot sounds
+         Uncomment & integrate when audio assets are ready:
+         <audio id="ambientAudio" src="ambient-hum.mp3" loop></audio>
+         <audio id="bootSound"    src="boot-beep.mp3"></audio>
+    -->
+  </section>
+
+  <!-- ============================================================
+       SECTION 2: COMMAND COMMUNICATION INTERFACE
+       ============================================================
+       Interactive dashboard grid with glass-morphic panels.
+       ============================================================ -->
+  <section id="command" aria-label="Command Communication Interface">
+    <h2 class="section-title">COMMAND INTERFACE</h2>
+    <p class="section-subtitle">DIMENSIONAL COMMUNICATIONS &amp; SYSTEM CONTROL</p>
+
+    <div class="dashboard-grid">
+
+      <!-- ========================
+           PANEL: Communications Log
+           ======================== -->
+      <article class="panel comms-log" aria-label="Communications Log">
+        <div class="panel-header">
+          <span class="dot" aria-hidden="true"></span>
+          <h3>Comms Log</h3>
+        </div>
+        <div class="comms-feed" id="commsFeed" role="log" aria-live="polite" aria-label="Incoming communications">
+          <!-- Messages are injected by JS -->
+        </div>
+      </article>
+
+      <!-- ========================
+           PANEL: Dimensional Radar
+           ======================== -->
+      <article class="panel radar-panel" aria-label="Dimensional Radar">
+        <div class="panel-header">
+          <span class="dot" aria-hidden="true"></span>
+          <h3>Dimensional Radar</h3>
+        </div>
+        <div class="radar-container" role="img" aria-label="Rotating radar display showing dimensional signatures">
+          <div class="radar-crosshair-h"></div>
+          <div class="radar-crosshair-v"></div>
+          <div class="radar-sweep"></div>
+          <!-- Blips – positioned via inline style -->
+          <div class="radar-blip" style="top:30%; left:60%;" aria-hidden="true"></div>
+          <div class="radar-blip" style="top:65%; left:35%;" aria-hidden="true"></div>
+          <div class="radar-blip" style="top:20%; left:25%;" aria-hidden="true"></div>
+          <div class="radar-blip" style="top:75%; left:70%;" aria-hidden="true"></div>
+        </div>
+      </article>
+
+      <!-- ========================
+           PANEL: System Diagnostics
+           ======================== -->
+      <article class="panel diag-panel" aria-label="System Diagnostics">
+        <div class="panel-header">
+          <span class="dot warn" aria-hidden="true"></span>
+          <h3>Diagnostics</h3>
+        </div>
+        <!-- Each gauge is a label + bar + value -->
+        <div class="gauge-row">
+          <span class="gauge-label">QUANTUM CORE</span>
+          <div class="gauge-bar"><div class="gauge-fill" style="width:87%"></div></div>
+          <span class="gauge-val">87%</span>
+        </div>
+        <div class="gauge-row">
+          <span class="gauge-label">SHIELDS</span>
+          <div class="gauge-bar"><div class="gauge-fill" style="width:94%"></div></div>
+          <span class="gauge-val">94%</span>
+        </div>
+        <div class="gauge-row">
+          <span class="gauge-label">FLUX CAPACITOR</span>
+          <div class="gauge-bar"><div class="gauge-fill gold" style="width:72%"></div></div>
+          <span class="gauge-val">72%</span>
+        </div>
+        <div class="gauge-row">
+          <span class="gauge-label">LIFE SUPPORT</span>
+          <div class="gauge-bar"><div class="gauge-fill" style="width:99%"></div></div>
+          <span class="gauge-val">99%</span>
+        </div>
+        <div class="gauge-row">
+          <span class="gauge-label">NAV ARRAY</span>
+          <div class="gauge-bar"><div class="gauge-fill" style="width:81%"></div></div>
+          <span class="gauge-val">81%</span>
+        </div>
+        <div class="gauge-row">
+          <span class="gauge-label">COMMS LINK</span>
+          <div class="gauge-bar"><div class="gauge-fill gold" style="width:66%"></div></div>
+          <span class="gauge-val">66%</span>
+        </div>
+      </article>
+
+      <!-- ========================
+           PANEL: Coordinate Display
+           ======================== -->
+      <article class="panel coords-panel" aria-label="Dimensional Coordinates">
+        <div class="panel-header">
+          <span class="dot" aria-hidden="true"></span>
+          <h3>Coordinates</h3>
+        </div>
+        <div class="coord-grid">
+          <div class="coord-item">
+            <div class="coord-label">DIMENSION-X</div>
+            <div class="coord-value" data-coord="x">7.291</div>
+          </div>
+          <div class="coord-item">
+            <div class="coord-label">DIMENSION-Y</div>
+            <div class="coord-value" data-coord="y">3.847</div>
+          </div>
+          <div class="coord-item">
+            <div class="coord-label">DIMENSION-Z</div>
+            <div class="coord-value" data-coord="z">9.103</div>
+          </div>
+          <div class="coord-item">
+            <div class="coord-label">TEMPORAL IDX</div>
+            <div class="coord-value" data-coord="t">42.616</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ========================
+           PANEL: Transporter System  (spans full grid width)
+           ======================== -->
+      <article class="panel transporter-panel" aria-label="Interdimensional Transporter System">
+        <div class="panel-header" style="justify-content:center; border:none;">
+          <span class="dot warn" aria-hidden="true"></span>
+          <h3 style="color:var(--transport-gold);">Interdimensional Transporter</h3>
+          <span class="dot warn" aria-hidden="true"></span>
+        </div>
+        <h3 class="transporter-title">QUANTUM TRANSPORT SYSTEM</h3>
+        <p class="transporter-desc">5-PHASE INTERDIMENSIONAL TRANSFERENCE PROTOCOL</p>
+
+        <button class="transport-activate-btn" id="transportActivateBtn"
+                aria-label="Activate 5-phase transporter sequence">
+          ⚡ INITIATE TRANSPORT ⚡
+        </button>
+
+        <!-- Phase indicators -->
+        <div class="phase-indicators" aria-label="Transport phases">
+          <div class="phase-dot"><div class="circle" data-phase="1"></div><span>Charge</span></div>
+          <div class="phase-dot"><div class="circle" data-phase="2"></div><span>Lock</span></div>
+          <div class="phase-dot"><div class="circle" data-phase="3"></div><span>Transport</span></div>
+          <div class="phase-dot"><div class="circle" data-phase="4"></div><span>Arrival</span></div>
+          <div class="phase-dot"><div class="circle" data-phase="5"></div><span>Complete</span></div>
+        </div>
+      </article>
+
+    </div><!-- /dashboard-grid -->
+
+    <!-- 🔊 AUDIO TRIGGER POINT: Dashboard ambient + button click sounds
+         <audio id="dashAmbient" src="dash-hum.mp3" loop></audio>
+         <audio id="btnClick"    src="btn-click.mp3"></audio>
+    -->
+  </section>
+
+  <!-- ============================================================
+       TRANSPORTER OVERLAY
+       ============================================================
+       Full-screen overlay that activates during transport sequence.
+       Contains a canvas for particle effects and energy rings.
+       ============================================================ -->
+  <div class="transporter-overlay" id="transporterOverlay" role="dialog" aria-modal="true" aria-label="Transporter active">
+    <canvas id="transportCanvas" aria-hidden="true"></canvas>
+    <button class="transport-close" id="transportClose" aria-label="Close transporter and reset">✕ ABORT / CLOSE</button>
+    <div class="transport-phase-text" id="transportPhaseText">CHARGING</div>
+    <div class="transport-sub-text" id="transportSubText">Initializing quantum field...</div>
+    <!-- Energy rings (CSS animated) -->
+    <div class="energy-ring" aria-hidden="true"></div>
+    <div class="energy-ring" aria-hidden="true" style="animation-delay:0.5s;"></div>
+    <div class="energy-ring" aria-hidden="true" style="animation-delay:1s;"></div>
+
+    <!-- 🔊 AUDIO TRIGGER POINT: Transport sound effects per phase
+         <audio id="chargeSound"    src="charge.mp3"></audio>
+         <audio id="lockSound"      src="lock.mp3"></audio>
+         <audio id="transportSound" src="transport.mp3"></audio>
+         <audio id="arrivalSound"   src="arrival.mp3"></audio>
+    -->
+  </div>
+
+  <!-- ============================================================
+       SECTION 3: ABOUT THE TRAVELLER
+       ============================================================
+       Cinematic storytelling with timeline and parallax effects.
+       ============================================================ -->
+  <section id="about" aria-label="About the Traveller">
+    <!-- Decorative beacon circle in background -->
+    <div class="about-beacon" aria-hidden="true"></div>
+
+    <h2 class="section-title">ABOUT THE TRAVELLER</h2>
+    <p class="section-subtitle">THE CHRONICLES OF DOC911</p>
+
+    <!-- Origin Story Block -->
+    <div class="story-block" data-story>
+      <h3>⌁ THE ORIGIN</h3>
+      <p>
+        In the forgotten corridors of <span class="highlight">Dimension Zero</span>,
+        a lone engineer discovered a fracture in the fabric of reality.  Not a tear —
+        something far more precise — a <span class="gold">resonance frequency</span>
+        that connected every possible universe.  By tuning instruments to
+        <span class="highlight">frequency 911</span>, the barriers between worlds
+        became permeable.  That engineer became known as <strong style="color:#fff;">DOC911</strong>.
+      </p>
+    </div>
+
+    <div class="story-block" data-story>
+      <h3>⌁ THE FIRST JUMP</h3>
+      <p>
+        The maiden voyage was uncharted, unplanned, and utterly terrifying.
+        Reality folded like origami — light bent into impossible colors,
+        time stretched and compressed.  For exactly <span class="gold">9.11 seconds</span>,
+        DOC911 existed everywhere and nowhere.  Then — arrival.
+        <span class="highlight">Dimension Cyan-7</span>, a world of crystalline oceans
+        and sentient light.  The interdimensional era had begun.
+      </p>
+    </div>
+
+    <div class="story-block" data-story>
+      <h3>⌁ THE DISCOVERIES</h3>
+      <p>
+        Each jump revealed new physics, new life, new impossibilities.
+        <span class="highlight">Dimension Magenta-∞</span> held beings of pure sound.
+        <span class="gold">The Gold Axis</span> was a dimension where time flowed sideways.
+        With each journey, DOC911 refined the transporter — making it safer,
+        faster, and capable of carrying others across the dimensional divide.
+      </p>
+    </div>
+
+    <!-- Timeline of Key Events -->
+    <div class="timeline" role="list" aria-label="Timeline of dimensional journeys">
+      <div class="timeline-item" data-story role="listitem">
+        <div class="timeline-era">EPOCH 0</div>
+        <h4 class="timeline-title">Fracture Discovery</h4>
+        <p class="timeline-desc">The resonance frequency 911 is identified.  Reality proves to be a membrane, not a wall.  The first prototype transporter is built from salvaged tech in Dimension Zero.</p>
+      </div>
+      <div class="timeline-item" data-story role="listitem">
+        <div class="timeline-era">EPOCH 1</div>
+        <h4 class="timeline-title">First Dimensional Jump</h4>
+        <p class="timeline-desc">9.11 seconds of complete sensory overload.  Arrival in Dimension Cyan-7.  First contact with non-human intelligence.  The Command Interface is conceived.</p>
+      </div>
+      <div class="timeline-item" data-story role="listitem">
+        <div class="timeline-era">EPOCH 7</div>
+        <h4 class="timeline-title">The Gold Axis Expedition</h4>
+        <p class="timeline-desc">Discovery of sideways-time dimension.  Temporal mechanics rewritten.  The 5-phase transport protocol is perfected, reducing jump risk by 91.1%.</p>
+      </div>
+      <div class="timeline-item" data-story role="listitem">
+        <div class="timeline-era">EPOCH ∞</div>
+        <h4 class="timeline-title">The Ongoing Mission</h4>
+        <p class="timeline-desc">Mapping the multiverse. Building bridges between realities. The DOC911 Interdimensional Control System now monitors 911 known dimensions and counting.</p>
+      </div>
+    </div>
+
+    <!-- Signal beacon decoration at bottom -->
+    <div class="signal-beacon" data-story aria-label="Signal beacon transmitting">
+      <div class="beacon-rings">
+        <div class="beacon-ring" aria-hidden="true"></div>
+        <div class="beacon-ring" aria-hidden="true"></div>
+        <div class="beacon-ring" aria-hidden="true"></div>
+        <div class="beacon-core" aria-hidden="true"></div>
+      </div>
+      <p class="beacon-text">SIGNAL TRANSMITTING ACROSS ALL DIMENSIONS</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       JAVASCRIPT – All interactivity lives here
+       ============================================================
+       Organized into clear sections:
+         1. Utility helpers
+         2. Background particles (CSS-based)
+         3. Portal canvas animation
+         4. Boot sequence
+         5. Scroll-triggered animations (Intersection Observer)
+         6. Coordinate counter animation
+         7. Communications log auto-feed
+         8. Navigation (scroll spy, hamburger)
+         9. Transporter sequence
+        10. Performance: resize / reduced-motion checks
+       ============================================================ -->
+  <script>
+    /* ==============================================================
+       0. WAIT FOR DOM TO BE FULLY LOADED
+       ==============================================================
+       We wrap everything in DOMContentLoaded so the HTML elements
+       exist before we try to access them.
+       ============================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+
+      /* ==============================================================
+         1. UTILITY HELPERS
+         ==============================================================
+         Small reusable functions used throughout the code.
+         ============================================================== */
+
+      /**
+       * Returns a random number between min and max.
+       * @param {number} min - Lower bound (inclusive)
+       * @param {number} max - Upper bound (exclusive)
+       */
+      function rand(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      /**
+       * Checks if the user prefers reduced motion.
+       * We'll skip heavy animations if true.
+       */
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /**
+       * Detect if the device is likely mobile (for performance tuning).
+       * We reduce particle counts on mobile to keep things smooth.
+       */
+      const isMobile = window.innerWidth < 768;
+
+      /* ==============================================================
+         2. BACKGROUND PARTICLES (CSS-animated floating dots)
+         ==============================================================
+         We create tiny <div> elements positioned randomly and let
+         CSS @keyframes "floatUp" handle the animation.
+         Fewer particles on mobile for performance.
+         ============================================================== */
+      (function createBgParticles() {
+        if (prefersReducedMotion) return;      // skip if reduced motion
+
+        const container = document.getElementById('bgParticles');
+        const count = isMobile ? 15 : 35;      // fewer on mobile
+
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          p.className = 'bg-particle';
+          /* Randomize position, size, speed, and delay */
+          p.style.left            = rand(0, 100) + '%';
+          p.style.bottom          = rand(-20, 10) + '%';
+          p.style.width           = rand(1, 3) + 'px';
+          p.style.height          = p.style.width;
+          p.style.animationDuration = rand(12, 30) + 's';
+          p.style.animationDelay    = rand(0, 15) + 's';
+          /* Alternate colors for variety */
+          if (Math.random() > 0.7) p.style.background = 'var(--neon-magenta)';
+          if (Math.random() > 0.9) p.style.background = 'var(--transport-gold)';
+          container.appendChild(p);
+        }
+      })();
+
+      /* ==============================================================
+         3. PORTAL CANVAS ANIMATION
+         ==============================================================
+         Draws a ring of particles that swirl and converge, creating
+         the "dimensional portal" effect behind the DOC911 title.
+
+         HOW IT WORKS:
+         - We define a Particle class.  Each particle orbits the
+           center in a circle, with slight oscillation in radius.
+         - On every frame we clear the canvas, update each particle,
+           and draw it as a tiny glowing circle.
+         - requestAnimationFrame gives us smooth 60fps rendering.
+         ============================================================== */
+      (function initPortalCanvas() {
+        const canvas = document.getElementById('portalCanvas');
+        const ctx    = canvas.getContext('2d');
+
+        /* --- Resize canvas to fill its container --- */
+        function resize() {
+          canvas.width  = canvas.offsetWidth;
+          canvas.height = canvas.offsetHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        /* Particle count – fewer on mobile */
+        const PARTICLE_COUNT = isMobile ? 80 : 200;
+
+        /* Center of the canvas (portal center) */
+        let cx, cy;
+        function updateCenter() {
+          cx = canvas.width / 2;
+          cy = canvas.height / 2;
+        }
+        updateCenter();
+        window.addEventListener('resize', updateCenter);
+
+        /* --- Particle class --- */
+        class Particle {
+          constructor() {
+            this.reset();
+          }
+
+          reset() {
+            /* Each particle orbits at a random radius and angle */
+            this.angle     = rand(0, Math.PI * 2);   // current angle
+            this.radius    = rand(60, Math.min(cx, cy) * 0.7); // orbit radius
+            this.baseRadius = this.radius;
+            this.speed     = rand(0.003, 0.015);      // angular speed
+            this.size      = rand(0.5, 2.5);          // dot size
+            this.pulse     = rand(0, Math.PI * 2);    // phase offset for pulsing
+            this.pulseSpeed = rand(0.02, 0.06);
+            /* Color: mostly cyan, some magenta, some gold */
+            const r = Math.random();
+            if (r > 0.85)      this.color = '255,0,255';     // magenta
+            else if (r > 0.75) this.color = '255,215,0';     // gold
+            else               this.color = '0,240,255';     // cyan
+          }
+
+          update() {
+            /* Rotate around center */
+            this.angle += this.speed;
+
+            /* Oscillate the radius to create a breathing effect */
+            this.pulse += this.pulseSpeed;
+            this.radius = this.baseRadius + Math.sin(this.pulse) * 15;
+
+            /* Convert polar coords to cartesian */
+            this.x = cx + Math.cos(this.angle) * this.radius;
+            this.y = cy + Math.sin(this.angle) * this.radius;
+          }
+
+          draw(ctx) {
+            const alpha = 0.3 + Math.sin(this.pulse) * 0.3;  // pulsing opacity
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color}, ${alpha})`;
+            ctx.fill();
+
+            /* Small glow around each particle */
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color}, ${alpha * 0.1})`;
+            ctx.fill();
+          }
+        }
+
+        /* Create particle array */
+        const particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          particles.push(new Particle());
+        }
+
+        /* --- Draw the portal ring (subtle outer glow ring) --- */
+        function drawPortalRing(time) {
+          const ringRadius = Math.min(cx, cy) * 0.45;
+          /* Outer glow */
+          ctx.beginPath();
+          ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0,240,255, ${0.08 + Math.sin(time * 0.001) * 0.04})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          /* Inner ring */
+          ctx.beginPath();
+          ctx.arc(cx, cy, ringRadius * 0.6, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255,0,255, 0.04)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        /* --- Main animation loop --- */
+        let animId;
+        function animate(time) {
+          /* Clear entire canvas each frame */
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          /* Draw central gradient glow */
+          const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(cx, cy) * 0.5);
+          grad.addColorStop(0, 'rgba(0,240,255,0.04)');
+          grad.addColorStop(0.5, 'rgba(255,0,255,0.02)');
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          /* Draw the ring guides */
+          drawPortalRing(time);
+
+          /* Update & draw every particle */
+          for (const p of particles) {
+            p.update();
+            p.draw(ctx);
+          }
+
+          /* Draw connecting lines between nearby particles (creates web effect) */
+          if (!isMobile) {
+            for (let i = 0; i < particles.length; i++) {
+              for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80) {
+                  ctx.beginPath();
+                  ctx.moveTo(particles[i].x, particles[i].y);
+                  ctx.lineTo(particles[j].x, particles[j].y);
+                  ctx.strokeStyle = `rgba(0,240,255, ${0.08 * (1 - dist / 80)})`;
+                  ctx.lineWidth = 0.5;
+                  ctx.stroke();
+                }
+              }
+            }
+          }
+
+          animId = requestAnimationFrame(animate);
+        }
+
+        /* Don't start the heavy canvas animation if reduced motion */
+        if (!prefersReducedMotion) {
+          animate(0);
+        }
+      })();
+
+      /* ==============================================================
+         4. BOOT SEQUENCE
+         ==============================================================
+         Simulates a terminal boot-up.  Each line appears with a delay,
+         giving the illusion of a system initializing.
+         ============================================================== */
+      (function runBootSequence() {
+        const container = document.getElementById('bootSequence');
+
+        /* Array of boot messages.  Each has text and delay (ms) */
+        const messages = [
+          { text: '> Initializing quantum core...', delay: 1500 },
+          { text: '> Loading dimensional matrix...', delay: 2200 },
+          { text: '> Calibrating resonance freq: 911 Hz', delay: 2900 },
+          { text: '> Shields online.', delay: 3400 },
+          { text: '> QUANTUM LOCK INITIALIZED ✓', delay: 4000 },
+          { text: '> System status: ALL GREEN', delay: 4500 },
+        ];
+
+        messages.forEach(({ text, delay }) => {
+          setTimeout(() => {
+            const line = document.createElement('div');
+            line.className = 'boot-line';
+            /* Add blinking cursor at the end */
+            line.innerHTML = text + ' <span class="cursor">█</span>';
+            container.appendChild(line);
+
+            /* Remove cursor from previous lines */
+            const allCursors = container.querySelectorAll('.cursor');
+            if (allCursors.length > 1) {
+              allCursors[allCursors.length - 2].remove();
+            }
+
+            /* 🔊 AUDIO TRIGGER POINT: Play a beep for each boot line
+               if (bootSound) bootSound.cloneNode().play();
+            */
+          }, delay);
+        });
+      })();
+
+      /* ==============================================================
+         5. SCROLL-TRIGGERED ANIMATIONS (Intersection Observer)
+         ==============================================================
+         The Intersection Observer API watches elements as they scroll
+         into view.  When an element enters the viewport, we add a
+         "visible" class to trigger its CSS entrance animation.
+
+         WHY Intersection Observer?
+           - Much more performant than listening to scroll events.
+           - No need for debouncing or throttling.
+           - Built into modern browsers.
+         ============================================================== */
+      (function initScrollAnimations() {
+        /* Select all elements that should animate on scroll */
+        const targets = document.querySelectorAll('.panel, .story-block, .timeline-item, .signal-beacon');
+
+        /* Configuration:
+           - threshold: 0.15 means 15% of the element must be visible
+           - rootMargin: slight offset so animation starts just before visible */
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              /* Once animated in, stop observing (one-time animation) */
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.15,
+          rootMargin: '0px 0px -50px 0px'
+        });
+
+        /* Observe each target element */
+        targets.forEach(el => observer.observe(el));
+      })();
+
+      /* ==============================================================
+         6. COORDINATE COUNTER ANIMATION
+         ==============================================================
+         The dimensional coordinates in the dashboard update
+         periodically to random values, giving a "live data" feel.
+         ============================================================== */
+      (function animateCoordinates() {
+        const coordEls = document.querySelectorAll('.coord-value');
+
+        function updateCoords() {
+          coordEls.forEach(el => {
+            /* Generate a random coordinate value based on axis */
+            const axis = el.dataset.coord;
+            let value;
+            if (axis === 't') {
+              /* Temporal index: slowly incrementing */
+              value = (parseFloat(el.textContent) + rand(0.001, 0.01)).toFixed(3);
+            } else {
+              /* Spatial: random fluctuation */
+              value = rand(0, 10).toFixed(3);
+            }
+            el.textContent = value;
+          });
+        }
+
+        /* Update every 2 seconds */
+        setInterval(updateCoords, 2000);
+      })();
+
+      /* ==============================================================
+         7. COMMUNICATIONS LOG AUTO-FEED
+         ==============================================================
+         Periodically adds new "incoming" messages to the comms panel.
+         Simulates real-time interdimensional communications.
+         ============================================================== */
+      (function initCommsFeed() {
+        const feed = document.getElementById('commsFeed');
+
+        /* Pool of possible messages */
+        const msgPool = [
+          { text: 'Dimensional rift stable. No anomalies.', type: '' },
+          { text: 'Signal received from Dimension Cyan-7.', type: '' },
+          { text: '⚠ Flux variance detected in sector 4.', type: 'alert-msg' },
+          { text: 'Transport beacon active — Gold Axis.', type: 'gold-msg' },
+          { text: 'Quantum entanglement verified.', type: '' },
+          { text: 'New dimension mapped: Epsilon-12.', type: '' },
+          { text: '⚠ Shield fluctuation — compensating.', type: 'alert-msg' },
+          { text: 'Incoming hail from Dimension Magenta-∞.', type: 'gold-msg' },
+          { text: 'Navigation array recalibrated.', type: '' },
+          { text: 'Temporal index synchronized.', type: '' },
+          { text: '⚠ Unknown energy signature detected!', type: 'alert-msg' },
+          { text: 'Resonance frequency locked: 911 Hz.', type: 'gold-msg' },
+          { text: 'Life support nominal.', type: '' },
+          { text: 'Dimensional membrane integrity: 98.7%.', type: '' },
+          { text: '⚠ Micro-rift forming — monitoring.', type: 'alert-msg' },
+          { text: 'All systems green.', type: '' },
+        ];
+
+        /* Format a timestamp like HH:MM:SS */
+        function getTimestamp() {
+          const now = new Date();
+          return now.toTimeString().slice(0, 8);
+        }
+
+        /* Add a single message to the feed */
+        function addMessage() {
+          const msg = msgPool[Math.floor(Math.random() * msgPool.length)];
+          const div = document.createElement('div');
+          div.className = 'comms-msg ' + msg.type;
+          div.innerHTML = `<span class="timestamp">[${getTimestamp()}]</span> ${msg.text}`;
+          feed.prepend(div);   // newest at top
+
+          /* Keep feed from growing forever (max 50 messages) */
+          while (feed.children.length > 50) {
+            feed.removeChild(feed.lastChild);
+          }
+        }
+
+        /* Seed initial messages */
+        for (let i = 0; i < 8; i++) addMessage();
+
+        /* Add a new message every 3-6 seconds */
+        setInterval(addMessage, rand(3000, 6000));
+      })();
+
+      /* ==============================================================
+         8. NAVIGATION — Scroll Spy & Hamburger Menu
+         ==============================================================
+         • Scroll Spy: highlights the nav link for whichever section
+           is currently in view.
+         • Hamburger: toggles the mobile menu open/closed.
+         ============================================================== */
+      (function initNavigation() {
+        const hamburger = document.getElementById('hamburger');
+        const navLinks  = document.getElementById('navLinks');
+        const links     = navLinks.querySelectorAll('a:not(.nav-transport-btn)');
+        const sections  = document.querySelectorAll('section[id]');
+
+        /* --- Hamburger toggle --- */
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('open');
+          navLinks.classList.toggle('open');
+          const expanded = hamburger.classList.contains('open');
+          hamburger.setAttribute('aria-expanded', expanded);
+        });
+
+        /* Close menu when a link is clicked (mobile) */
+        navLinks.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('open');
+            hamburger.setAttribute('aria-expanded', 'false');
+          });
+        });
+
+        /* --- Scroll Spy with Intersection Observer --- */
+        const spyObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              /* Remove active from all, add to matching link */
+              links.forEach(l => l.classList.remove('active'));
+              const activeLink = navLinks.querySelector(`a[href="#${entry.target.id}"]`);
+              if (activeLink) activeLink.classList.add('active');
+            }
+          });
+        }, {
+          /* 
+           * rootMargin: top offset pulls trigger up into the nav bar area,
+           * bottom offset means only the top portion of the section needs
+           * to be visible.
+           */
+          rootMargin: '-30% 0px -60% 0px'
+        });
+
+        sections.forEach(sec => spyObserver.observe(sec));
+      })();
+
+      /* ==============================================================
+         9. TRANSPORTER ACTIVATION SEQUENCE
+         ==============================================================
+         The flagship interaction!  When the user clicks "Initiate
+         Transport", we run through 5 phases:
+
+           Phase 1: CHARGE    — Particle buildup in overlay canvas
+           Phase 2: LOCK      — Coordinate lock + rings tighten
+           Phase 3: TRANSPORT  — Chromatic aberration, intense glow
+           Phase 4: ARRIVAL   — Particle burst outward
+           Phase 5: COMPLETE  — Calm fade, success message
+
+         Each phase lasts ~2 seconds.  The overlay covers the full
+         screen and uses a <canvas> for particle effects.
+         ============================================================== */
+      (function initTransporter() {
+        const overlay       = document.getElementById('transporterOverlay');
+        const phaseText     = document.getElementById('transportPhaseText');
+        const subText       = document.getElementById('transportSubText');
+        const activateBtn   = document.getElementById('transportActivateBtn');
+        const navBtn        = document.getElementById('navTransportBtn');
+        const closeBtn      = document.getElementById('transportClose');
+        const canvas        = document.getElementById('transportCanvas');
+        const ctx           = canvas.getContext('2d');
+        const phaseDots     = document.querySelectorAll('.phase-dot .circle');
+        const energyRings   = document.querySelectorAll('.energy-ring');
+
+        let isTransporting = false;   // prevents double-activation
+        let transportAnimId;          // animation frame ID for cleanup
+
+        /* --- Resize transport canvas --- */
+        function resizeTransport() {
+          canvas.width  = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        resizeTransport();
+        window.addEventListener('resize', resizeTransport);
+
+        /* --- Transport Particle class --- */
+        class TransportParticle {
+          constructor(cx, cy, phase) {
+            this.cx = cx;
+            this.cy = cy;
+            this.phase = phase;
+            this.reset();
+          }
+
+          reset() {
+            this.angle = rand(0, Math.PI * 2);
+            /* In early phases, particles converge inward.
+               In phase 4 (arrival), they burst outward. */
+            if (this.phase >= 4) {
+              this.radius = rand(0, 20);
+              this.speed  = rand(2, 8);          // expand outward
+            } else {
+              this.radius = rand(100, Math.max(this.cx, this.cy));
+              this.speed  = rand(-3, -0.5);      // converge inward
+            }
+            this.size = rand(1, 3);
+            this.alpha = rand(0.3, 1);
+            this.alive = true;
+
+            const r = Math.random();
+            if (r > 0.7) this.color = '255,0,255';
+            else if (r > 0.4) this.color = '255,215,0';
+            else this.color = '0,240,255';
+          }
+
+          update() {
+            this.radius += this.speed;
+            this.angle  += 0.01;
+            this.x = this.cx + Math.cos(this.angle) * this.radius;
+            this.y = this.cy + Math.sin(this.angle) * this.radius;
+
+            /* Kill when too far out or too close to center */
+            if (this.radius < 0 || this.radius > Math.max(this.cx, this.cy) * 1.5) {
+              this.alive = false;
+            }
+          }
+
+          draw(ctx) {
+            if (!this.alive) return;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+            ctx.fill();
+            /* Glow */
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color}, ${this.alpha * 0.15})`;
+            ctx.fill();
+          }
+        }
+
+        /* --- Phase definitions --- */
+        const phases = [
+          { name: 'CHARGING',     sub: 'Building quantum field energy...',        duration: 2000 },
+          { name: 'LOCK',         sub: 'Dimensional coordinates locked.',         duration: 2000 },
+          { name: 'TRANSPORTING', sub: 'Reality membrane breached — hold on!',    duration: 2500 },
+          { name: 'ARRIVAL',      sub: 'Materializing in target dimension...',    duration: 2000 },
+          { name: 'COMPLETE',     sub: 'Transport successful. Welcome, traveller.', duration: 2000 },
+        ];
+
+        /* --- Run the full sequence --- */
+        function startTransport() {
+          if (isTransporting) return;
+          isTransporting = true;
+          overlay.classList.add('active');
+          resizeTransport();
+
+          const cxT = canvas.width / 2;
+          const cyT = canvas.height / 2;
+
+          let currentPhase = 0;
+          let particles = [];
+
+          /* --- Advance to next phase --- */
+          function nextPhase() {
+            if (currentPhase >= phases.length) {
+              /* Sequence complete — auto-close after a brief pause */
+              setTimeout(closeTransport, 1500);
+              return;
+            }
+
+            const phase = phases[currentPhase];
+            phaseText.textContent = phase.name;
+            subText.textContent   = phase.sub;
+
+            /* Light up phase dot */
+            phaseDots.forEach((dot, i) => {
+              dot.classList.remove('active', 'done');
+              if (i < currentPhase)  dot.classList.add('done');
+              if (i === currentPhase) dot.classList.add('active');
+            });
+
+            /* Animate energy rings during charge & transport */
+            if (currentPhase === 0 || currentPhase === 2) {
+              energyRings.forEach(ring => {
+                ring.style.animation = 'none';
+                void ring.offsetWidth;   // force reflow
+                ring.style.animation = 'ringExpand 2s ease-out forwards';
+              });
+            }
+
+            /* Apply visual effects to overlay based on phase */
+            if (currentPhase === 2) {
+              /* Transport phase: intense chromatic aberration simulation */
+              overlay.style.background = 'rgb(10,0,30)';
+              overlay.style.boxShadow = 'inset 0 0 200px rgba(255,0,255,0.3), inset 0 0 100px rgba(0,240,255,0.15)';
+            } else if (currentPhase === 3) {
+              /* Arrival: bright flash then calm */
+              overlay.style.background = 'rgb(200,200,255)';
+              setTimeout(() => { overlay.style.background = 'rgb(0,0,0)'; }, 300);
+            } else if (currentPhase === 4) {
+              overlay.style.background = 'rgb(0,0,0)';
+              overlay.style.boxShadow = 'none';
+            }
+
+            /* Spawn phase-specific particles */
+            const count = isMobile ? 30 : 80;
+            for (let i = 0; i < count; i++) {
+              particles.push(new TransportParticle(cxT, cyT, currentPhase));
+            }
+
+            /* 🔊 AUDIO TRIGGER POINT: Play phase-specific sound
+               switch(currentPhase) {
+                 case 0: chargeSound.play(); break;
+                 case 1: lockSound.play(); break;
+                 case 2: transportSound.play(); break;
+                 case 3: arrivalSound.play(); break;
+               }
+            */
+
+            currentPhase++;
+            setTimeout(nextPhase, phase.duration);
+          }
+
+          /* --- Particle animation loop --- */
+          function animateTransport() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            /* Draw center glow */
+            const grad = ctx.createRadialGradient(cxT, cyT, 0, cxT, cyT, 200);
+            grad.addColorStop(0, 'rgba(255,215,0,0.06)');
+            grad.addColorStop(0.5, 'rgba(0,240,255,0.03)');
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            /* Update & draw particles */
+            particles = particles.filter(p => p.alive);
+            for (const p of particles) {
+              p.update();
+              p.draw(ctx);
+            }
+
+            transportAnimId = requestAnimationFrame(animateTransport);
+          }
+
+          animateTransport();
+          nextPhase();
+        }
+
+        /* --- Close / reset the transporter --- */
+        function closeTransport() {
+          overlay.classList.remove('active');
+          overlay.style.background = '';
+          overlay.style.boxShadow = '';
+          isTransporting = false;
+          cancelAnimationFrame(transportAnimId);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          /* Reset phase dots */
+          phaseDots.forEach(dot => dot.classList.remove('active', 'done'));
+
+          /* Reset text */
+          phaseText.textContent = 'CHARGING';
+          subText.textContent   = 'Initializing quantum field...';
+        }
+
+        /* --- Event listeners --- */
+        activateBtn.addEventListener('click', startTransport);
+        navBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          startTransport();
+        });
+        closeBtn.addEventListener('click', closeTransport);
+
+        /* Close on Escape key (accessibility) */
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && isTransporting) closeTransport();
+        });
+      })();
+
+      /* ==============================================================
+         10. PARALLAX EFFECT ON ABOUT SECTION
+         ==============================================================
+         Subtle parallax: the beacon circle moves slower than scroll,
+         creating a depth illusion.  Uses a debounced scroll listener.
+         ============================================================== */
+      (function initParallax() {
+        if (prefersReducedMotion || isMobile) return;   // skip on mobile
+
+        const beacon = document.querySelector('.about-beacon');
+        if (!beacon) return;
+
+        let ticking = false;
+
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              const scrollY = window.scrollY;
+              /* Move beacon at 30% of scroll speed for depth effect */
+              beacon.style.transform = `translateY(${scrollY * 0.15}px)`;
+              ticking = false;
+            });
+            ticking = true;          // throttle to 1 update per frame
+          }
+        });
+      })();
+
+      /* ==============================================================
+         11. DIAGNOSTIC GAUGE ANIMATIONS
+         ==============================================================
+         Every few seconds, subtly change the diagnostic gauge values
+         to simulate live system monitoring.
+         ============================================================== */
+      (function animateGauges() {
+        const rows = document.querySelectorAll('.gauge-row');
+
+        function updateGauges() {
+          rows.forEach(row => {
+            const fill = row.querySelector('.gauge-fill');
+            const val  = row.querySelector('.gauge-val');
+            /* Generate a value near the current one (fluctuation) */
+            const current = parseInt(val.textContent);
+            const newVal  = Math.min(100, Math.max(40, current + Math.floor(rand(-5, 5))));
+            fill.style.width  = newVal + '%';
+            val.textContent   = newVal + '%';
+          });
+        }
+
+        setInterval(updateGauges, 4000);
+      })();
+
+      /* ==============================================================
+         12. RADAR BLIP MOVEMENT
+         ==============================================================
+         Periodically repositions radar blips to random locations
+         within the radar circle, simulating detected objects moving.
+         ============================================================== */
+      (function animateRadarBlips() {
+        const blips = document.querySelectorAll('.radar-blip');
+
+        function moveBlips() {
+          blips.forEach(blip => {
+            /* Keep within a circular area (roughly) */
+            blip.style.top  = rand(15, 85) + '%';
+            blip.style.left = rand(15, 85) + '%';
+            blip.style.transition = 'top 2s ease, left 2s ease';
+          });
+        }
+
+        setInterval(moveBlips, 3000);
+      })();
+
+      /* ==============================================================
+         INITIALIZATION COMPLETE
+         ==============================================================
+         All systems online.  The page is now fully interactive.
+         ============================================================== */
+      console.log('%c[DOC911] All systems initialized.', 'color: #00f0ff; font-weight: bold;');
+
+    }); /* end DOMContentLoaded */
+  </script>
+</body>
+</html>
