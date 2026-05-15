@@ -516,6 +516,42 @@
       text-transform: uppercase;
     }
 
+    /* --- Clickable panel titles --- */
+    .panel-header h3.clickable-title {
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out-expo);
+      position: relative;
+      padding: 4px 8px;
+      margin: -4px -8px;
+      border-radius: 4px;
+    }
+    .panel-header h3.clickable-title:hover {
+      color: #fff;
+      text-shadow: 0 0 15px var(--electric-cyan), 0 0 25px var(--electric-cyan);
+      background: rgba(0,240,255,0.08);
+    }
+    .panel-header h3.clickable-title:active {
+      transform: scale(0.95);
+    }
+    /* Pulse animation when clicked */
+    @keyframes titlePulse {
+      0% { 
+        box-shadow: 0 0 0 0 rgba(0,240,255,0.7);
+        background: rgba(0,240,255,0.2);
+      }
+      50% { 
+        box-shadow: 0 0 20px 8px rgba(0,240,255,0);
+        background: rgba(0,240,255,0.1);
+      }
+      100% { 
+        box-shadow: 0 0 0 0 rgba(0,240,255,0);
+        background: rgba(0,240,255,0);
+      }
+    }
+    .panel-header h3.clickable-title.pulse {
+      animation: titlePulse 0.6s ease-out;
+    }
+
     /* --- Communications Log Panel --- */
     .comms-log {
       grid-column: span 1;
@@ -659,6 +695,153 @@
       font-size: 1.1rem;
       color: var(--electric-cyan);
       text-shadow: 0 0 10px rgba(0,240,255,0.4);
+    }
+
+    /* --- Voice Communication Panel --- */
+    .voice-panel { 
+      grid-column: span 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .voice-input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .voice-input-field {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,240,255,0.15);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--electric-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .voice-input-field::placeholder {
+      color: rgba(0,240,255,0.3);
+    }
+
+    .voice-input-field:focus {
+      border-color: rgba(0,240,255,0.4);
+      box-shadow: 0 0 15px rgba(0,240,255,0.15), inset 0 0 10px rgba(0,240,255,0.05);
+      background: rgba(0,0,0,0.5);
+    }
+
+    .voice-transmit-btn {
+      background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(0,240,255,0.05));
+      border: 1px solid rgba(0,240,255,0.25);
+      border-radius: 6px;
+      color: var(--electric-cyan);
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      padding: 8px 12px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out-expo);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .voice-transmit-btn:hover {
+      background: rgba(0,240,255,0.2);
+      border-color: rgba(0,240,255,0.4);
+      box-shadow: 0 0 20px rgba(0,240,255,0.2);
+      text-shadow: 0 0 10px var(--electric-cyan);
+    }
+
+    .voice-transmit-btn:active {
+      transform: scale(0.95);
+    }
+
+    .voice-presets-label {
+      font-family: var(--font-heading);
+      font-size: 0.55rem;
+      color: var(--dim-text);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .voice-presets {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .voice-preset-btn {
+      background: rgba(255,215,0,0.06);
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: 4px;
+      color: rgba(255,215,0,0.7);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      letter-spacing: 1px;
+    }
+
+    .voice-preset-btn:hover {
+      background: rgba(255,215,0,0.12);
+      border-color: rgba(255,215,0,0.3);
+      color: var(--transport-gold);
+      box-shadow: 0 0 12px rgba(255,215,0,0.15);
+    }
+
+    .voice-preset-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Speaking indicator */
+    .voice-speaking-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: rgba(0,240,255,0.05);
+      border-radius: 4px;
+      border: 1px solid rgba(0,240,255,0.1);
+      margin-top: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .voice-speaking-indicator.active {
+      background: rgba(0,240,255,0.12);
+      border-color: rgba(0,240,255,0.3);
+      box-shadow: 0 0 15px rgba(0,240,255,0.2);
+    }
+
+    .pulse-ring {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--electric-cyan);
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+
+    .voice-speaking-indicator.active .pulse-ring {
+      animation: pulse 1s ease-in-out infinite;
+      opacity: 1;
+    }
+
+    .status-text {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--dim-text);
+      letter-spacing: 1px;
+    }
+
+    .voice-speaking-indicator.active .status-text {
+      color: var(--electric-cyan);
+      animation: glowPulse 1s ease-in-out infinite;
     }
 
     /* --- Transporter Panel --- */
@@ -1018,6 +1201,9 @@
         grid-row: span 1;
       }
       .comms-feed { height: 180px; }
+      .voice-panel {
+        grid-column: span 1;
+      }
     }
 
     /* --- Mobile (< 768px) --- */
@@ -1232,7 +1418,7 @@
       <article class="panel comms-log" aria-label="Communications Log">
         <div class="panel-header">
           <span class="dot" aria-hidden="true"></span>
-          <h3>Comms Log</h3>
+          <h3 id="commsLogTitle" class="clickable-title" role="button" tabindex="0" aria-label="Click to hear communications log">Comms Log</h3>
         </div>
         <div class="comms-feed" id="commsFeed" role="log" aria-live="polite" aria-label="Incoming communications">
           <!-- Messages are injected by JS -->
@@ -1245,7 +1431,7 @@
       <article class="panel radar-panel" aria-label="Dimensional Radar">
         <div class="panel-header">
           <span class="dot" aria-hidden="true"></span>
-          <h3>Dimensional Radar</h3>
+          <h3 id="radarTitle" class="clickable-title" role="button" tabindex="0" aria-label="Click to hear radar status">Dimensional Radar</h3>
         </div>
         <div class="radar-container" role="img" aria-label="Rotating radar display showing dimensional signatures">
           <div class="radar-crosshair-h"></div>
@@ -1265,7 +1451,7 @@
       <article class="panel diag-panel" aria-label="System Diagnostics">
         <div class="panel-header">
           <span class="dot warn" aria-hidden="true"></span>
-          <h3>Diagnostics</h3>
+          <h3 id="diagnosticsTitle" class="clickable-title" role="button" tabindex="0" aria-label="Click to hear system diagnostics">Diagnostics</h3>
         </div>
         <!-- Each gauge is a label + bar + value -->
         <div class="gauge-row">
@@ -1306,7 +1492,7 @@
       <article class="panel coords-panel" aria-label="Dimensional Coordinates">
         <div class="panel-header">
           <span class="dot" aria-hidden="true"></span>
-          <h3>Coordinates</h3>
+          <h3 id="coordinatesTitle" class="clickable-title" role="button" tabindex="0" aria-label="Click to hear dimensional coordinates">Coordinates</h3>
         </div>
         <div class="coord-grid">
           <div class="coord-item">
@@ -1325,6 +1511,38 @@
             <div class="coord-label">TEMPORAL IDX</div>
             <div class="coord-value" data-coord="t">42.616</div>
           </div>
+        </div>
+      </article>
+
+      <!-- ========================
+           PANEL: Voice Comm Terminal (AI Speech Interface)
+           ======================== -->
+      <article class="panel voice-panel" aria-label="AI Voice Communication Terminal">
+        <div class="panel-header">
+          <span class="dot" aria-hidden="true"></span>
+          <h3>Voice Comm Terminal</h3>
+        </div>
+        
+        <!-- Voice input section -->
+        <div class="voice-input-section">
+          <input type="text" id="voiceInput" class="voice-input-field" placeholder="Enter message to speak..." aria-label="Type message for text-to-speech">
+          <button id="voiceTransmitBtn" class="voice-transmit-btn" aria-label="Transmit voice message">TRANSMIT VOICE</button>
+        </div>
+
+        <!-- Preset voice buttons -->
+        <div class="voice-presets-label">PRESET TRANSMISSIONS:</div>
+        <div class="voice-presets">
+          <button class="voice-preset-btn" data-preset="System Online">System Online</button>
+          <button class="voice-preset-btn" data-preset="Coordinates Locked">Coordinates Locked</button>
+          <button class="voice-preset-btn" data-preset="Transport Initialized">Transport Initialized</button>
+          <button class="voice-preset-btn" data-preset="Dimensional Breach Detected">Dimensional Breach Detected</button>
+          <button class="voice-preset-btn" data-preset="All Systems Nominal">All Systems Nominal</button>
+        </div>
+
+        <!-- Visual speaking indicator -->
+        <div id="voiceSpeakingIndicator" class="voice-speaking-indicator" aria-label="Speech synthesis active indicator">
+          <span class="pulse-ring"></span>
+          <span class="status-text">READY</span>
         </div>
       </article>
 
@@ -2496,10 +2714,62 @@
       })();
 
       /* ==============================================================
-         4. BOOT SEQUENCE
+         4. GLOBAL SPEAK FUNCTION (for Boot Sequence & System Messages)
+         ==============================================================
+         Global speech synthesis function that can be called from anywhere.
+         Works alongside the Voice Comm Terminal without interference.
+         ============================================================== */
+      window.speakBootMessage = (function() {
+        const SpeechSynthesisUtterance = window.SpeechSynthesisUtterance;
+        const speechSynthesis = window.speechSynthesis;
+
+        if (!SpeechSynthesisUtterance || !speechSynthesis) {
+          // Speech not supported, return no-op function
+          return function() {};
+        }
+
+        return function(text) {
+          if (!text || !text.trim()) return;
+
+          // Clean up text for speech (remove >, ✓, █ and other symbols)
+          const cleanText = text
+            .replace(/^>\s*/, '')           // Remove leading >
+            .replace(/✓/g, 'check')         // Replace checkmark
+            .replace(/█/g, '')              // Remove block cursor
+            .replace(/\.\.\./g, '')         // Remove ellipsis for cleaner speech
+            .trim();
+
+          if (!cleanText) return;
+
+          // Create utterance (don't cancel existing speech, queue it)
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+
+          // Configure voice settings for boot sequence (robotic, assertive)
+          utterance.rate = 1.1;           // Slightly faster for system messages
+          utterance.pitch = 1.0;          // Lower pitch for authority
+          utterance.volume = 0.7;         // Moderate volume, not overwhelming
+
+          // Try to find a suitable voice
+          const voices = speechSynthesis.getVoices();
+          if (voices.length > 0) {
+            const selectedVoice = voices.find(voice => 
+              voice.name.includes('Google') || 
+              voice.lang.startsWith('en')
+            ) || voices[0];
+            utterance.voice = selectedVoice;
+          }
+
+          // Speak the text (queued, won't interrupt existing speech)
+          speechSynthesis.speak(utterance);
+        };
+      })();
+
+      /* ==============================================================
+         5. BOOT SEQUENCE
          ==============================================================
          Simulates a terminal boot-up.  Each line appears with a delay,
          giving the illusion of a system initializing.
+         🔊 NOW WITH VOICE: Each boot message is spoken as it appears!
          ============================================================== */
       (function runBootSequence() {
         const container = document.getElementById('bootSequence');
@@ -2531,12 +2801,17 @@
             /* 🔊 AUDIO TRIGGER POINT: Play a beep for each boot line
                if (bootSound) bootSound.cloneNode().play();
             */
+
+            /* 🔊 VOICE: Speak the boot message as it appears */
+            if (window.speakBootMessage) {
+              window.speakBootMessage(text);
+            }
           }, delay);
         });
       })();
 
       /* ==============================================================
-         5. SCROLL-TRIGGERED ANIMATIONS (Intersection Observer)
+         6. SCROLL-TRIGGERED ANIMATIONS (Intersection Observer)
          ==============================================================
          The Intersection Observer API watches elements as they scroll
          into view.  When an element enters the viewport, we add a
@@ -2572,7 +2847,7 @@
       })();
 
       /* ==============================================================
-         6. COORDINATE COUNTER ANIMATION
+         7. COORDINATE COUNTER ANIMATION
          ==============================================================
          The dimensional coordinates in the dashboard update
          periodically to random values, giving a "live data" feel.
@@ -2601,7 +2876,7 @@
       })();
 
       /* ==============================================================
-         7. COMMUNICATIONS LOG AUTO-FEED
+         8. COMMUNICATIONS LOG AUTO-FEED
          ==============================================================
          Periodically adds new "incoming" messages to the comms panel.
          Simulates real-time interdimensional communications.
@@ -2657,7 +2932,7 @@
       })();
 
       /* ==============================================================
-         8. NAVIGATION — Scroll Spy & Hamburger Menu
+         9. NAVIGATION — Scroll Spy & Hamburger Menu
          ==============================================================
          • Scroll Spy: highlights the nav link for whichever section
            is currently in view.
@@ -2710,7 +2985,221 @@
       })();
 
       /* ==============================================================
-         9. TRANSPORTER ACTIVATION SEQUENCE
+         10. VOICE COMMUNICATION TERMINAL – Text-to-Speech
+         ==============================================================
+         Uses Web Speech API for AI assistant voice synthesis.
+         Provides both custom text input and preset voice messages.
+         Features visual feedback with pulsing indicator.
+         ============================================================== */
+      (function initVoicePanel() {
+        const voiceInput = document.getElementById('voiceInput');
+        const voiceTransmitBtn = document.getElementById('voiceTransmitBtn');
+        const voicePresetBtns = document.querySelectorAll('.voice-preset-btn');
+        const speakingIndicator = document.getElementById('voiceSpeakingIndicator');
+        const statusText = speakingIndicator.querySelector('.status-text');
+
+        /* Check for Web Speech API support */
+        const SpeechSynthesisUtterance = window.SpeechSynthesisUtterance;
+        const speechSynthesis = window.speechSynthesis;
+
+        if (!SpeechSynthesisUtterance || !speechSynthesis) {
+          console.warn('[VOICE COMM] Web Speech API not supported in this browser');
+          voiceTransmitBtn.disabled = true;
+          voiceInput.disabled = true;
+          voicePresetBtns.forEach(btn => btn.disabled = true);
+          return;
+        }
+
+        /* Function to speak text with AI voice settings */
+        function speakText(text) {
+          if (!text.trim()) return;
+
+          /* Cancel any existing speech */
+          speechSynthesis.cancel();
+
+          /* Create utterance */
+          const utterance = new SpeechSynthesisUtterance(text);
+
+          /* Configure voice settings for slightly robotic/AI assistant feel */
+          utterance.rate = 1.0;           /* Normal speaking speed */
+          utterance.pitch = 1.2;          /* Slightly higher pitch for "AI" feel */
+          utterance.volume = 0.8;         /* Moderate volume */
+
+          /* Try to find a suitable voice (prefer female/neutral voices) */
+          const voices = speechSynthesis.getVoices();
+          if (voices.length > 0) {
+            /* Prefer English voices, looking for ones that sound more robotic/AI-like */
+            const selectedVoice = voices.find(voice => 
+              voice.name.includes('Google') || 
+              voice.name.includes('Samantha') ||
+              voice.name.includes('Victoria') ||
+              voice.lang.startsWith('en')
+            ) || voices[0];
+            utterance.voice = selectedVoice;
+          }
+
+          /* Show speaking state */
+          speakingIndicator.classList.add('active');
+          statusText.textContent = 'TRANSMITTING';
+
+          /* 🔊 Audio feedback: Play click sound when speech starts */
+          audioEngine.playButtonClick();
+
+          /* Reset when speech ends */
+          utterance.onend = () => {
+            speakingIndicator.classList.remove('active');
+            statusText.textContent = 'READY';
+          };
+
+          utterance.onerror = () => {
+            speakingIndicator.classList.remove('active');
+            statusText.textContent = 'ERROR';
+            setTimeout(() => { statusText.textContent = 'READY'; }, 2000);
+          };
+
+          /* Speak the text */
+          speechSynthesis.speak(utterance);
+        }
+
+        /* Transmit button handler */
+        voiceTransmitBtn.addEventListener('click', () => {
+          const text = voiceInput.value;
+          if (text.trim()) {
+            speakText(text);
+            voiceInput.value = '';
+            voiceInput.focus();
+          }
+        });
+
+        /* Allow Enter key to transmit */
+        voiceInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            voiceTransmitBtn.click();
+          }
+        });
+
+        /* Preset buttons handler */
+        voicePresetBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const preset = btn.dataset.preset;
+            speakText(preset);
+          });
+        });
+
+        /* Load voices when they're available */
+        if ('onvoiceschanged' in speechSynthesis) {
+          speechSynthesis.onvoiceschanged = () => {
+            /* Voices loaded */
+          };
+        }
+
+        /* Set initial status */
+        statusText.textContent = 'READY';
+
+        /* ==============================================================
+           PANEL TITLE CLICK-TO-SPEAK FUNCTIONALITY
+           ==============================================================
+           Make dashboard panel titles speak their content when clicked.
+           Each title speaks relevant information from its panel.
+           ============================================================== */
+
+        /* Get panel title elements */
+        const commsLogTitle = document.getElementById('commsLogTitle');
+        const diagnosticsTitle = document.getElementById('diagnosticsTitle');
+        const coordinatesTitle = document.getElementById('coordinatesTitle');
+        const radarTitle = document.getElementById('radarTitle');
+
+        /* Helper function to add pulse effect and play click sound */
+        function addPulseEffect(element) {
+          element.classList.add('pulse');
+          audioEngine.playButtonClick();
+          setTimeout(() => {
+            element.classList.remove('pulse');
+          }, 600);
+        }
+
+        /* COMMS LOG - Speak latest communications */
+        function speakCommsLog() {
+          addPulseEffect(commsLogTitle);
+          const commsFeed = document.getElementById('commsFeed');
+          const messages = commsFeed.querySelectorAll('.comms-msg');
+          
+          if (messages.length === 0) {
+            speakText('Communications log is empty. No incoming transmissions detected.');
+            return;
+          }
+
+          /* Get the latest 3-5 messages */
+          const recentMessages = Array.from(messages).slice(-5);
+          const messageTexts = recentMessages.map(msg => {
+            const text = msg.textContent.replace(/\d{2}:\d{2}:\d{2}/, '').trim();
+            return text;
+          });
+
+          const speech = 'Communications log: ' + messageTexts.join('. ');
+          speakText(speech);
+        }
+
+        /* DIAGNOSTICS - Speak system status */
+        function speakDiagnostics() {
+          addPulseEffect(diagnosticsTitle);
+          const gauges = document.querySelectorAll('.gauge-row');
+          const diagnostics = [];
+
+          gauges.forEach(gauge => {
+            const label = gauge.querySelector('.gauge-label').textContent.trim();
+            const value = gauge.querySelector('.gauge-val').textContent.trim();
+            diagnostics.push(`${label} at ${value}`);
+          });
+
+          const speech = 'System diagnostics: ' + diagnostics.join(', ') + '. All systems nominal.';
+          speakText(speech);
+        }
+
+        /* COORDINATES - Speak dimensional coordinates */
+        function speakCoordinates() {
+          addPulseEffect(coordinatesTitle);
+          const coords = document.querySelectorAll('.coord-value');
+          const x = coords[0].textContent;
+          const y = coords[1].textContent;
+          const z = coords[2].textContent;
+          const t = coords[3].textContent;
+
+          const speech = `Dimensional coordinates: X ${x}, Y ${y}, Z ${z}, Temporal index ${t}. Position locked.`;
+          speakText(speech);
+        }
+
+        /* RADAR - Speak radar status */
+        function speakRadar() {
+          addPulseEffect(radarTitle);
+          const blips = document.querySelectorAll('.radar-blip');
+          const blipCount = blips.length;
+
+          const speech = `Dimensional radar active. Scanning range 500 parsecs. ${blipCount} ${blipCount === 1 ? 'anomaly' : 'anomalies'} detected. Sector scan complete.`;
+          speakText(speech);
+        }
+
+        /* Add click event listeners */
+        commsLogTitle.addEventListener('click', speakCommsLog);
+        diagnosticsTitle.addEventListener('click', speakDiagnostics);
+        coordinatesTitle.addEventListener('click', speakCoordinates);
+        radarTitle.addEventListener('click', speakRadar);
+
+        /* Add keyboard support (Enter/Space) for accessibility */
+        [commsLogTitle, diagnosticsTitle, coordinatesTitle, radarTitle].forEach((title, index) => {
+          const handlers = [speakCommsLog, speakDiagnostics, speakCoordinates, speakRadar];
+          title.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handlers[index]();
+            }
+          });
+        });
+
+      })();
+
+      /* ==============================================================
+         11. TRANSPORTER ACTIVATION SEQUENCE
          ==============================================================
          The flagship interaction!  When the user clicks "Initiate
          Transport", we run through 5 phases:
@@ -2953,7 +3442,7 @@
       })();
 
       /* ==============================================================
-         10. PARALLAX EFFECT ON ABOUT SECTION
+         12. PARALLAX EFFECT ON ABOUT SECTION
          ==============================================================
          Subtle parallax: the beacon circle moves slower than scroll,
          creating a depth illusion.  Uses a debounced scroll listener.
@@ -2980,7 +3469,7 @@
       })();
 
       /* ==============================================================
-         11. DIAGNOSTIC GAUGE ANIMATIONS
+         13. DIAGNOSTIC GAUGE ANIMATIONS
          ==============================================================
          Every few seconds, subtly change the diagnostic gauge values
          to simulate live system monitoring.
@@ -3004,7 +3493,7 @@
       })();
 
       /* ==============================================================
-         12. RADAR BLIP MOVEMENT
+         14. RADAR BLIP MOVEMENT
          ==============================================================
          Periodically repositions radar blips to random locations
          within the radar circle, simulating detected objects moving.
